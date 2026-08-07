@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(pytest *)",
+      "Bash(python -m pytest *)",
+      "Bash(git diff *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(uvicorn *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git commit *)",
+      "Bash(psql *)",
+      "Bash(pip install *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(psql *DELETE FROM customer_ledgers*)",
+      "Bash(psql *TRUNCATE customer_ledgers*)",
+      "Bash(psql *DROP TABLE customer_ledgers*)",
+      "Bash(psql *DELETE FROM customer_ledgers* --no-verify*)",
+      "Bash(psql *DELETE FROM login_requests*)",
+      "Bash(psql *TRUNCATE login_requests*)",
+      "Bash(psql *DROP TABLE login_requests*)",
+      "Bash(psql *DELETE FROM inbox_messages*)",
+      "Bash(psql *TRUNCATE inbox_messages*)",
+      "Bash(psql *DROP TABLE inbox_messages*)"
+    ]
+  },
+  "harness_name": "Claude-Omega-Scales-Harness",
+  "spine_file": "progress.md",
+  "human_gate_threshold": 100000.00,
+  "rules": {
+    "math_formula": "total_amount == rate * qty",
+    "balance_formula": "current_balance == previous_balance + total_amount",
+    "gate_trigger": "If bill_total > 100,000 PKR -> halt Gmail dispatch, open Human Gate Drawer, wait for Admin [APPROVE / REJECT]"
+  }
+}

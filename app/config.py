@@ -29,6 +29,23 @@ class Settings:
 
     fastapi_backend_url: str = os.getenv("FASTAPI_BACKEND_URL", "http://127.0.0.1:8000")
 
+    # CORS (Section 14) — comma-separated list of origins allowed to call this
+    # API directly from a browser. The frontend's normal request path goes
+    # through Next.js's server-side rewrite proxy (same-origin, no CORS
+    # involved), but this still needs to be correct for direct browser calls
+    # (e.g. the /docs Swagger UI "Try it out" button) and as a safety net if
+    # that proxy is ever bypassed. Defaults cover local dev plus the current
+    # production Vercel domain; override via env when the frontend domain
+    # changes instead of editing code.
+    allowed_origins: list[str] = [
+        origin.strip()
+        for origin in os.getenv(
+            "ALLOWED_ORIGINS",
+            "http://localhost:3000,http://127.0.0.1:3000,https://inomega-rrsz.vercel.app",
+        ).split(",")
+        if origin.strip()
+    ]
+
     # Section 7.1's heartbeats (daily digest, login-request expiry, Gmail sync)
     # run on a real BackgroundScheduler started from app startup. Defaults OFF
     # so `pytest`/local dev never fires a real scheduled job against the real

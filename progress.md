@@ -979,3 +979,6 @@ User specified an exact new look for the route-transition loader: three small ho
 **One console warning noticed during this pass, pre-existing and unrelated — not fixed, flagged for awareness:** a React hydration-mismatch warning on `TextInput`'s underlying `<input>` (`style={{caret-color:"transparent"}}` server vs. `style={{}}` client) appeared on several pages during this verification. Confirmed unrelated to this change — this session touched only `app/loading.tsx` and the loader's own CSS block, nothing near `TextInput`/`Sidebar`/`Topbar`. Out of scope for today's ask; worth a look in a future pass if it starts showing up elsewhere.
 
 Cleanup confirmed: temporary Admin (`zztest-verify-loader1@example.com`) deleted. `tsc --noEmit` and `eslint .` (whole frontend) both clean. No backend files touched — nothing to re-run there.
+- [2026-08-11T13:30:13.053441+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 0/1 admin(s).
+- [2026-08-11T13:30:13.063473+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 1/1 admin(s).
+- [2026-08-11T13:31:21.839385+00:00] Daily digest: 3 low-stock item(s), 3 overdue invoice(s), sent to 1/1 admin(s).

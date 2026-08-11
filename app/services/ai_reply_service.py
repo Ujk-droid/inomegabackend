@@ -3,7 +3,7 @@ the linked invoice/ledger context, drafting a suggested reply. It is ALWAYS a
 draft into the compose box, never auto-sent — the router/inbox_service layer
 enforces that a human presses Send separately."""
 
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 
 from app.config import settings
 
@@ -41,11 +41,14 @@ def generate_reply_draft(message: dict, invoice: dict | None = None) -> str:
     client = OpenAI(api_key=settings.openai_api_key)
     context = _build_context(message, invoice)
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Draft a reply to this customer email:\n\n{context}"},
-        ],
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": f"Draft a reply to this customer email:\n\n{context}"},
+            ],
+        )
+        return response.choices[0].message.content
+    except OpenAIError as exc:
+        raise RuntimeError(f"OpenAI error: {str(exc)}") from exc

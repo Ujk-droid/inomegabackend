@@ -9,6 +9,7 @@ they're supplied.
 import base64
 from email.mime.text import MIMEText
 
+from google.auth.exceptions import GoogleAuthError, RefreshError
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -37,7 +38,7 @@ def _get_service():
     )
     try:
         return build("gmail", "v1", credentials=creds, cache_discovery=False)
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
 
 
@@ -52,7 +53,7 @@ def list_message_ids(query: str, max_results: int = 25) -> list[str]:
     service = _get_service()
     try:
         resp = service.users().messages().list(userId="me", q=query, maxResults=max_results).execute()
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
     return [m["id"] for m in resp.get("messages", [])]
 
@@ -64,7 +65,7 @@ def get_message(message_id: str) -> dict:
     service = _get_service()
     try:
         msg = service.users().messages().get(userId="me", id=message_id, format="metadata").execute()
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
 
     headers = msg["payload"]["headers"]
@@ -92,7 +93,7 @@ def send_message(to_email: str, subject: str, body: str, thread_id: str | None =
 
     try:
         sent = service.users().messages().send(userId="me", body=payload).execute()
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
     return sent["id"]
 
@@ -105,7 +106,7 @@ def get_full_message(message_id: str) -> dict:
     service = _get_service()
     try:
         return service.users().messages().get(userId="me", id=message_id, format="full").execute()
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
 
 
@@ -119,7 +120,7 @@ def get_attachment_bytes(message_id: str, attachment_id: str) -> bytes:
             .get(userId="me", messageId=message_id, id=attachment_id)
             .execute()
         )
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc
     return base64.urlsafe_b64decode(att["data"])
 
@@ -130,5 +131,5 @@ def trash_message(message_id: str) -> None:
     service = _get_service()
     try:
         service.users().messages().trash(userId="me", id=message_id).execute()
-    except HttpError as exc:
+    except (HttpError, GoogleAuthError, RefreshError) as exc:
         raise GmailApiError(str(exc)) from exc

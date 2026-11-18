@@ -34,7 +34,7 @@ Architecture decisions are scattered across this document by topic (schema in Se
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  PRESENTATION LAYER — omega-frontend/ (Next.js, Section 4)   │
-│  Gravity UI components · Dark "Black Peacock Glass" theme    │
+│  Gravity UI components · "Midnight Indigo" dark/light theme  │
 │  Talks ONLY to the backend API — never to Supabase/Cloudinary │
 │  /Gmail/OpenAI directly                                       │
 └───────────────────────────┬────────────────────────────────┘
@@ -240,33 +240,44 @@ Next.js Middleware guards every `Admin only` route above → redirects Staff to 
 
 The original spec was Dark Sea Blue Glassmorphic only. **This version requires both a Dark and a Light theme**, switchable via a toggle, sharing the same component structure and only swapping tokens. Build as CSS variables / Tailwind theme tokens so Figma variables map 1:1 to code tokens.
 
-### 4.1 Dark Theme — "Black Peacock Glass" (locked — revised from the earlier navy-blue version)
+### 4.1 Dark Theme: "Midnight Indigo" (locked 2026-11-16, replaces the earlier "Black Peacock Glass" teal palette)
 | Token | Value | Usage |
 |---|---|---|
-| `--bg-base` | `#0A0E12` | App background — true near-black, not navy |
-| `--surface-glass` | `linear-gradient(135deg, #146C8C 50%→0, #0F4C5C 30%→0, #0A0E12 80%→0)` + `backdrop-blur-md` | Cards, panels — peacock blue fading to black |
-| `--border-glass` | `#1B98A0` @ 25% opacity | Card borders |
-| `--accent-primary` | `#22D3EE` (hover `#7DE8F5`) | Buttons, active states, glows |
-| `--accent-secondary` | `#146C8C` | Secondary accents |
-| `--text-primary` | `#EAF6F8` | Body text on dark |
-| `--text-muted` | `#8FB4BE` | Labels, meta text |
+| `--bg-base` | `#0B1020` | App background, deep midnight navy |
+| `--surface` | `#131A2E` | Cards, panels, sidebar, top bar, modals |
+| `--border` | `#222B45` | 1px card/table/input borders (dark mode uses borders, not shadows, for separation) |
+| `--accent-primary` | `#6366F1` | Primary fills: action buttons, active nav indicator, focus ring, selection |
+| `--accent-primary-fg` | `#818CF8` | Primary used *as text* (links, active nav label). `#6366F1` on `#131A2E` is only 3.87:1, below WCAG AA, so text uses this lighter tint (5.79:1) |
+| `--accent-secondary` | `#22D3EE` | Secondary accent, "info" status, second chart series |
+| `--success` | `#34D399` | Paid / In Stock / Active / positive deltas |
+| `--warning` | `#FBBF24` | Unpaid / Pending / caution |
+| `--danger` | `#F87171` | Overdue / Low Stock / errors / destructive actions |
+| `--text-primary` | `#E8EBF5` | Body text (14.5:1 on surface) |
+| `--text-muted` | `#9AA3BF` | Labels, meta text (6.9:1 on surface) |
 
-**Explicit anti-drift rule (Stitch has produced purple/violet by mistake before):** this palette stays entirely within the blue-teal-cyan family — `#146C8C`, `#0F4C5C`, `#1B98A0`, `#22D3EE`. **No red, magenta, or violet channel mixing is allowed anywhere in this gradient or its shadows/glows.** If a generated screen shows any purple or violet tint, that is a drift bug, not a valid interpretation — restate these exact hex codes to fix it.
-
-### 4.2 Light Theme — "Clear Peacock Glass" (updated to share the dark theme's peacock accent family)
+### 4.2 Light Theme: "Midnight Indigo Light" (locked 2026-11-16, same token names as 4.1)
 | Token | Value | Usage |
 |---|---|---|
-| `--bg-base` | `#F5FAFA` | App background |
-| `--surface-glass` | `linear-gradient(135deg, #FFFFFF 70%→0, #D6F0F2 40%→0, #B8E4E8 20%→0)` + `backdrop-blur-md` | Cards, panels |
-| `--border-glass` | `#146C8C` @ 20% opacity | Card borders |
-| `--accent-primary` | `#0F6B7C` (hover `#0A4C5A`) | Buttons, active states |
-| `--accent-secondary` | `#1B98A0` | Secondary accents |
-| `--text-primary` | `#0A0E12` | Body text on light |
-| `--text-muted` | `#4E7078` | Labels, meta text |
+| `--bg-base` | `#F6F7FB` | App background |
+| `--surface` | `#FFFFFF` | Cards, panels, sidebar, top bar, modals |
+| `--border` | `#E4E7F0` | 1px borders (light mode adds soft layered shadows on cards) |
+| `--accent-primary` | `#4F46E5` | Primary fills and primary text (6.29:1 on white, so it serves as its own `-fg`) |
+| `--accent-secondary` | `#0891B2` | Secondary accent fills, chart series. As text use `#0E7490` (`--accent-secondary-fg`), since `#0891B2` is 3.68:1 on white |
+| `--success` | `#059669` | Status fills/icons. As text use `#047857` (`--success-fg`); `#059669` is 3.77:1 |
+| `--warning` | `#D97706` | Status fills/icons. As text use `#B45309` (`--warning-fg`); `#D97706` is 3.19:1 |
+| `--danger` | `#DC2626` | Errors, destructive (4.83:1 on white, usable as text) |
+| `--text-primary` | `#0F172A` | Body text |
+| `--text-muted` | `#5B6478` | Labels, meta text (5.9:1 on white) |
 
-*(Decision, revised: the theme moved from a navy Sea Blue to a true-black-based Peacock Blue — a near-black background reads as a more modern, premium SaaS look (the same direction as Linear, Vercel, and Raycast's dark modes) than a navy-blue background, while the peacock teal-blue accent keeps the same trust/reliability read as before. Both themes now share one accent family so switching modes never feels like a different brand. Green stays reserved for status indicators only, as before.)*
+**Chart series (both themes, fixed order, slot N is always the same hue):** `#6366F1`, `#22D3EE`, `#34D399`, `#FBBF24`, `#F472B6`, `#A78BFA`. Single-series charts use the theme's `--accent-primary`.
 
-Both themes keep the **same shape language**: glassmorphic frosted cards, rounded 16px corners, soft cyan glow on focus/active, identical spacing scale. Only color tokens and blur/shadow intensity shift.
+**Contrast rule:** each semantic colour has a *fill* value (the palette value above, used for buttons, badges, dots, chart marks and borders) and an *`-fg`* value (used when that colour is the text itself), which must reach WCAG AA (4.5:1) on `--surface`. Where the palette value already passes, `-fg` equals it.
+
+*(Decision, revised 2026-11-16: the earlier teal "Black Peacock Glass" palette and its "no violet" anti-drift rule are retired. Indigo primary plus a cyan secondary gives clearer separation between primary actions and info/secondary states, and the solid-surface style (instead of gradient glass) improves text contrast and table readability. Green, amber and red stay reserved for status.)*
+
+**Shape language (both themes):** solid surfaces (no gradient glass), **12px card radius**, 8px radius on inputs/buttons, 8pt spacing scale (4/8/12/16/24/32px). Dark mode separates layers with subtle 1px `--border` lines. Light mode uses the same borders plus soft layered shadows. Focus is a 2px `--accent-primary` ring. Transitions are 150–200ms ease and are turned off under `prefers-reduced-motion: reduce`.
+
+**Out of scope for this palette:** the generated Invoice/Purchase PDF (Section 9.2, `pdf_service.py`) keeps its own `#0F6B7C` accent and header wash. It is a printed document, not app UI.
 
 ### 4.3 Component Library — Gravity UI (mapped to specific screens, not a vague list)
 
@@ -323,7 +334,7 @@ The components above cover the original screen set. These features, added later,
 
 ### 4.4 Figma Handoff Notes
 - Create Figma **Variables** (not just styles) named exactly as the tokens above, in two modes: `Dark` and `Light`, so switching mode in Figma mirrors the app's theme toggle.
-- Base grid: 8pt spacing system, 16px card radius, 1px glass border, blur 12–16px.
+- Base grid: 8pt spacing system, 12px card radius, 1px border, solid surfaces (no blur). *(Revised 2026-11-16 with the Midnight Indigo palette, Section 4.1.)*
 - Deliver frames for every screen in Section 6, each in both modes.
 
 ### 4.5 Mobile Responsiveness (real-world requirement — was not specified before)
@@ -363,8 +374,8 @@ This applies to both Stitch (generate a mobile variant for Tier 1 and 2 screens)
 
 Every route change and every data-fetching action needs a visible loading state — a blank flash or a frozen screen while data loads reads as broken, even if it's just slow.
 
-- **Route/page transition loader (revised — was a thin top progress bar, now a themed orbit spinner):** a small (~36px) group of three hollow ring circles arranged in a triangular/orbit pattern, centered at the very top of the screen, appearing briefly on every route change (e.g. Inventory → Party Ledger) and disappearing once the new page's data has loaded. The three rings — `#22D3EE` (accent), `#146C8C` (secondary accent), `#7DE8F5` (light accent) — each carry a subtle matching glow (a ~6px, low-opacity box-shadow in that ring's own color) and rotate together as one rigid unit, one full turn roughly every 1.1s. Still implemented as a Next.js App Router `loading.tsx` per route, not a full-page spinner — it should never fully block the old screen from view while the new one loads.
-- **In-component loading:** any card or table waiting on its own data (e.g. a chart while Matplotlib generates, a ledger table while a date-filter reloads) shows a **skeleton** (a pulsing gray/glass placeholder shaped like the real content) rather than a spinner-in-empty-space — this is already implied by the Gravity UI component set but is stated explicitly here so it isn't skipped.
+- **Route/page transition loader (revised — was a thin top progress bar, now a themed orbit spinner):** a small (~36px) group of three hollow ring circles arranged in a triangular/orbit pattern, centered at the very top of the screen, appearing briefly on every route change (e.g. Inventory → Party Ledger) and disappearing once the new page's data has loaded. The three rings — `#6366F1` (primary), `#22D3EE` (secondary), `#A78BFA` (light indigo), recoloured 2026-11-16 for the Midnight Indigo palette — each carry a subtle matching glow (a ~6px, low-opacity box-shadow in that ring's own color) and rotate together as one rigid unit, one full turn roughly every 1.1s. Still implemented as a Next.js App Router `loading.tsx` per route, not a full-page spinner — it should never fully block the old screen from view while the new one loads.
+- **In-component loading:** any card or table waiting on its own data (e.g. a chart while its data loads, a ledger table while a date-filter reloads) shows a **skeleton** (a pulsing gray/glass placeholder shaped like the real content) rather than a spinner-in-empty-space — this is already implied by the Gravity UI component set but is stated explicitly here so it isn't skipped.
 - **Button-level loading:** any button that triggers a request (Sign In, Send Email, Approve, Import) disables itself and shows an inline spinner + text change (e.g. "Sending...") while in flight — already specified for Login (Screen 1) and now applies to every action button in the app, not just that one.
 - **The Waiting-for-Approval screen (0b)** and the **daily digest / bulk upload progress bar (Section 6, Screen 3)** are two loading states already designed in detail elsewhere — this section is the general rule everything else follows.
 
@@ -765,16 +776,58 @@ This system runs **two separate loops**, not one:
 
 ## 8. Analytics & Data Visualization
 
-Backend: FastAPI + Pandas + Matplotlib → PNG → Cloudinary CDN → served as URLs/JSON to Gravity UI `<ChartKit>`.
+*(Revised 2026-11-16. The original Matplotlib → PNG → Cloudinary pipeline was retired on 2026-08-07. Every chart now renders live in the browser with `@gravity-ui/charts`, from JSON. There is no server-side image generation and no `chart_url` anywhere.)*
 
-1. **Monthly Sales & Revenue** — line chart — source: `customer_ledgers` WHERE `txn_type='sale'`, grouped by month
-2. **Top 5 Selling Scale Models** — bar chart — source: `customer_ledgers` joined to `inventory_items` on `item_code`, summed by `item_name`
-3. **Customer Debt / Ledger Balance** — pie chart — source: latest `current_balance` per customer-type party from `customer_ledgers`, joined to `parties`
-4. **Low Stock Items** (new) — bar chart — source: `inventory_items` WHERE `quantity_in_stock <= min_threshold`, sorted by how far below threshold each item is — the same live table that drives the Dashboard KPI and the daily digest email (Section 7.1), so this chart and that count can never disagree
-5. **Payment Method Breakdown** (new) — pie chart — source: `customer_ledgers` WHERE `txn_type='receiving'`, grouped by `payment_method` (Cash/Cheque/Online/Bank Transfer) — shows how customers are actually paying, over a selectable date range
-6. **Category-wise Sales** (new) — bar chart — source: `customer_ledgers` joined to `inventory_items` on `item_code`, summed `total_amount` grouped by `inventory_items.category`
+**Pipeline:** FastAPI query function (`app/services/analytics_service.py`) → JSON `{ "data": [...] }` → `@gravity-ui/charts` in the browser. All chart data comes from the same tables that power the rest of the app (Section 5). There is no separate "reporting" dataset to keep in sync, so the numbers on Analytics always match what's really in Inventory and the Ledgers.
 
-All six pull from the same tables that power the rest of the app (Section 5) — there is no separate "reporting" dataset to keep in sync, so the numbers on Analytics always match what's really in Inventory and the Ledgers.
+### 8.1 Endpoints and response shapes (as built)
+
+Every analytics endpoint returns `AnalyticsResult` = `{ "data": list[object] }`. The four range-aware endpoints accept optional `start_date` / `end_date` query params (`YYYY-MM-DD`, inclusive, matched against `transaction_date`). Customer Debt and Low Stock are always a live snapshot and take no date params. Every endpoint requires an authenticated session (`get_current_user`), and Admin and Staff can both read them, matching the `/analytics` and `/dashboard` rows in Section 3.2.
+
+| # | Chart | Endpoint | Item shape | Source / rules |
+|---|---|---|---|---|
+| 1 | Monthly Sales & Revenue | `GET /analytics/monthly-sales-revenue` | `{ month: "YYYY-MM", revenue: number }`, ascending by month | `customer_ledgers` sales, `invoice_state='finalized'`, not soft-deleted, summed `total_amount` per month |
+| 2 | Top 5 Selling Scale Models | `GET /analytics/top-selling-models` | `{ item_name: string, quantity_sold: number }`, max 5, descending | finalized, non-deleted `customer_ledgers` → `invoice_line_items` → `inventory_items`, summed quantity by item name |
+| 3 | Customer Debt / Ledger Balance | `GET /analytics/customer-debt-balance` | `{ party_name: string, current_balance: number }`, only balances > 0 | latest (by `created_at`) non-deleted `customer_ledgers.current_balance` per `parties` row of type `customer` or `both` |
+| 4 | Low Stock Items | `GET /analytics/low-stock-items` | `{ item_code: string, quantity_in_stock: number, min_threshold: number }`, most-below-threshold first | `inventory_items` where `quantity_in_stock <= min_threshold`: the same rule as the Dashboard KPI and the daily digest (Section 7.1), so they can never disagree |
+| 5 | Payment Method Breakdown | `GET /analytics/payment-method-breakdown` | `{ method: string, total: number }` | `customer_ledgers` receivings, grouped by `particulars.name` (Cash/Cheque/Online/Bank Transfer, "Unknown" if unset) |
+| 6 | Category-wise Sales | `GET /analytics/category-wise-sales` | `{ category: string, total: number }` | finalized, non-deleted sale line items grouped by the item's `categories_1.name` ("Uncategorized" if unset) |
+| 7 | Party Balance Trend (Party Ledger page) | `GET /parties/{id}/ledger` (no dedicated chart endpoint) | ledger rows; the chart plots `{ x: transaction_date, y: current_balance }` | sorted client-side by `transaction_date`, ties broken by `created_at` (insertion order, which is the order `current_balance` was computed in, Section 17) |
+
+### 8.2 Where each chart appears
+
+- **Analytics** (`/analytics`): charts 1–6, with one shared From/To filter feeding charts 1, 2, 5 and 6. Charts 3 and 4 say "live snapshot" under their title.
+- **Dashboard** (`/dashboard`): charts 1, 2 and 3, as the *same components* as Analytics at a shorter height. This repetition is intentional.
+- **Party Ledger** (`/parties/[partyId]/ledger`): chart 7.
+
+### 8.3 Chart types
+
+| Chart | Type | Notes |
+|---|---|---|
+| Monthly Sales & Revenue | Area | Primary-accent line (the library draws area lines with round joins/caps by default), flat translucent fill (series `opacity` 0.25) |
+| Top Selling Scale Models | Vertical bar | Rounded top corners, single series in the primary accent |
+| Customer Debt / Ledger Balance | Donut | **Top 5 parties as slices, the rest grouped as "Others"** (muted neutral colour). **Total outstanding debt shown in the centre.** Legend, no slice labels |
+| Low Stock Items | Horizontal bar, 2 series | In Stock vs Min Threshold per item, rounded, legend |
+| Payment Method Breakdown | Donut | One slice per method, percentage labels on slices, empty centre. It reads differently from the Customer Debt donut on purpose |
+| Category-wise Sales | Horizontal bar | **Sorted descending**, rounded, single series. **Total of all categories shown as a number beside the chart title** (replaces the earlier waterfall) |
+| Party Balance Trend | Line | Primary-accent line with round joins/caps, no fill (keeps it distinct from the area chart) |
+
+### 8.4 Chart styling rules (both themes)
+
+- **Colours come from the design tokens** in `app/globals.css` (Section 4.1/4.2), read at runtime by `useChartColors()` (`lib/theme/use-chart-colors.ts`), so a theme switch recolours every chart. `lib/theme/chart-palette.ts` holds the same values as the fallback for server rendering.
+  - Multi-series (slices, grouped bars): `--chart-1`…`--chart-6` = `#6366F1, #22D3EE, #34D399, #FBBF24, #F472B6, #A78BFA`, in fixed order: slot N is always the same hue.
+  - Single-series charts: the theme's `--accent-primary` (`#6366F1` dark, `#4F46E5` light).
+  - "Others" / remainder slices: `--text-muted`.
+- **Lines:** straight segments between real data points, with round joins and caps (public `linejoin`/`linecap: 'round'` on line series; area lines are drawn round by default), width 2.5px. No curve smoothing: the library has no public option for it, and reshaping its rendered SVG is not allowed (it would depend on library internals).
+- **Area fill:** flat fill in the series colour at 25% opacity, through the public `opacity` option. A gradient fill was considered and **skipped**: it would mean restyling the library's internal SVG path classes.
+- **Bars:** 6px corner radius.
+- **Gridlines:** 1px in `--border` (light, never competing with the data), and axis labels in `--text-muted`. Both come from the Gravity theme tokens (`--g-color-line-generic`, `--g-color-text-secondary`) set in Section 4, not from chart-specific CSS.
+- **Tooltips** on every chart. Currency values formatted `Rs. 1,234,567`, no decimals.
+- **Legends** only on multi-series charts and donuts. A single-series chart is named by its title.
+- **Load animation:** the whole chart body (our own wrapper element, not library DOM) fades and rises 6px over about 400ms when data first arrives. It does not replay on resize, and is disabled under `prefers-reduced-motion: reduce`. Per-shape animation (bars growing, slices scaling) was **skipped** because it would need the library's internal classes.
+- **Loading state:** the fixed `<Skeleton>` (Section 4.6) at the chart's real height. **Empty state:** the shared empty-state glyph with "No data yet". **Error:** a toast naming the failed charts; the card falls back to the empty state.
+- **Responsive:** every chart fills its card's width and re-lays out on resize. Card heights are 300px on Analytics and 220px on Dashboard.
+- **Shared building blocks** (`components/charts/`): `ChartFrame` (card, title, headline number, loading/empty, load animation), `AreaTrendChart`, `LineTrendChart`, `BarChart` (vertical or horizontal), `DonutChart` (optional centre total, top-N + "Others" grouping). The per-metric components in `components/analytics/` only map API rows into these.
 
 ---
 
@@ -878,7 +931,7 @@ Full CRUD (either entry path lands in the same table):
 | Email (read/reply) | Gmail API (OAuth 2.0) — new, needed for the Inbox feature (Section 9.1) |
 | AI Reply Drafts | OpenAI API — new, needed for the Inbox's "Generate AI Reply" button |
 | WhatsApp | None — free `wa.me` link, no API/account needed |
-| Charts | Pandas + Matplotlib → Gravity ChartKit |
+| Charts | FastAPI JSON (Section 8.1) → `@gravity-ui/charts` (pinned 1.57.2), rendered in the browser |
 | Auth | Supabase Auth (JWT) |
 
 ### Every API key this system actually needs, and why:

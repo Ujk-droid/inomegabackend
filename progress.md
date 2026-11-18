@@ -979,6 +979,38 @@ User specified an exact new look for the route-transition loader: three small ho
 **One console warning noticed during this pass, pre-existing and unrelated — not fixed, flagged for awareness:** a React hydration-mismatch warning on `TextInput`'s underlying `<input>` (`style={{caret-color:"transparent"}}` server vs. `style={{}}` client) appeared on several pages during this verification. Confirmed unrelated to this change — this session touched only `app/loading.tsx` and the loader's own CSS block, nothing near `TextInput`/`Sidebar`/`Topbar`. Out of scope for today's ask; worth a look in a future pass if it starts showing up elsewhere.
 
 Cleanup confirmed: temporary Admin (`zztest-verify-loader1@example.com`) deleted. `tsc --noEmit` and `eslint .` (whole frontend) both clean. No backend files touched — nothing to re-run there.
+
+## PRD sync + chart refresh (2026-11-16): no backend code changes
+
+**Audit result:** no static PNG charts remain. All 10 charts were already live
+`@gravity-ui/charts` fed by the six JSON endpoints in `app/routers/analytics.py`
+(the Matplotlib pipeline was removed on 2026-08-07, see that entry above). The
+user chose a frontend style refresh only, with **no new endpoints and no new
+backend tests**.
+
+**PRD.md (this repo):** replaced with a byte-identical copy of
+`omega-frontend/PRD.md`. That brings this copy up to the Midnight Indigo palette
+(Section 4.1/4.2, 4.4, 4.6) and the new Section 8: as-built endpoints and
+response shapes (`AnalyticsResult = { data: [...] }`, one row type per
+endpoint), where each chart appears, chart types, and chart styling rules. Before
+copying, `git diff` confirmed this copy had no local edits, so nothing was lost.
+`pdf_service.py` and the PDF design (Section 9.2, `#0F6B7C`) are unchanged.
+
+**Analytics roles, checked, not changed (user confirmed):** PRD Section 3.2
+lists `/analytics` and `/dashboard` as **Admin, Staff**. All six
+`/analytics/*` endpoints use `get_current_user`, which returns 401 with no
+session, an invalid/expired token, a deleted user or a deactivated account, and
+no role check. That matches the PRD. `require_admin` would break Staff's
+Dashboard charts.
+
+**Tests:** `pytest tests/unit tests/integration`: **236 passed**, no code
+changes. (`tests/integration_real/` not run: it needs live external services.)
+
+**Note:** running that suite appends "Daily digest" lines to the end of this
+file (two were added at 2026-11-16T08:07 UTC). That's existing behaviour, left
+as-is.
 - [2026-08-11T13:30:13.053441+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 0/1 admin(s).
 - [2026-08-11T13:30:13.063473+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 1/1 admin(s).
 - [2026-08-11T13:31:21.839385+00:00] Daily digest: 3 low-stock item(s), 3 overdue invoice(s), sent to 1/1 admin(s).
+- [2026-11-16T08:07:49.317426+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 0/1 admin(s).
+- [2026-11-16T08:07:49.324063+00:00] Daily digest: 0 low-stock item(s), 0 overdue invoice(s), sent to 1/1 admin(s).
